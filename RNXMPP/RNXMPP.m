@@ -162,6 +162,8 @@ RCT_EXPORT_METHOD(sendStanza:(NSString *)stanza){
               DigestMD5_AUTH: @(MD5)
               };
 };
-
-
++ (BOOL)requiresMainQueueSetup
+{
+  return NO;
+}
 @end
