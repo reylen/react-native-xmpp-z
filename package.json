@@ -1,6 +1,6 @@
 {
   "name": "react-native-xmpp-z",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "description": "XMPP Library for React Native",
   "homepage": "https://github.com/reylen/react-native-xmpp-z",
   "main": "index.js",
