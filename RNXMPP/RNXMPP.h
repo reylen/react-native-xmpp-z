@@ -10,9 +10,10 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTBridge.h>
 #import <React/RCTEventDispatcher.h>
+#import <React/RCTEventEmitter.h>
 #import <React/RCTConvert.h>
 #import "RNXMPPService.h"
 
-@interface RNXMPP : NSObject<RCTBridgeModule, RNXMPPServiceDelegate>
+@interface RNXMPP : RCTEventEmitter<RCTBridgeModule, RNXMPPServiceDelegate>
 
 @end

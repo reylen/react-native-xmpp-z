@@ -82,8 +82,14 @@ static DDLogLevel ddLogLevel = DDLogLevelInfo;
         //        We are patiently waiting for a fix from Apple.
         //        If you do enableBackgroundingOnSocket on the simulator,
         //        you will simply see an error message from the xmpp stack when it fails to set the property.
+        if (@available(iOS 16.0, *)) {
+//            rootView.backgroundColor = [UIColor systemBackgroundColor];
+            xmppStream.enableBackgroundingOnSocket = NO;
+        } else {
+//            rootView.backgroundColor = [UIColor whiteColor];
+            xmppStream.enableBackgroundingOnSocket = YES;
+        }
 
-        xmppStream.enableBackgroundingOnSocket = YES;
     }
 #endif
 
@@ -152,13 +158,13 @@ static DDLogLevel ddLogLevel = DDLogLevelInfo;
     [xmppReconnect         activate:xmppStream];
     [xmppRoster            activate:xmppStream];
     [xmppRoster addDelegate:self delegateQueue:dispatch_get_main_queue()];
-    
+
     xmppStreamManagentStorage = [[XMPPStreamManagementMemoryStorage alloc] init];
     xmppStreamManagement = [[XMPPStreamManagement alloc] initWithStorage:xmppStreamManagentStorage];
     [xmppStreamManagement activate:xmppStream];
     xmppStreamManagement.autoResume = YES;
     [xmppStreamManagement addDelegate:self  delegateQueue:dispatch_get_main_queue()];
-    
+
 //    [xmppvCardTempModule   activate:xmppStream];
 //    [xmppvCardAvatarModule activate:xmppStream];
 //    [xmppCapabilities      activate:xmppStream];
@@ -268,7 +274,7 @@ static DDLogLevel ddLogLevel = DDLogLevelInfo;
     username = myJID;
     password = myPassword;
     authMethod = auth;
-    
+
     xmppStream.hostName = (hostname ? hostname : [username componentsSeparatedByString:@"@"][1]);
     if(port){
         xmppStream.hostPort = port;
@@ -283,7 +289,7 @@ static DDLogLevel ddLogLevel = DDLogLevelInfo;
             if (self.delegate){
                 [self.delegate onLoginError:error];
             }
-            
+
             return NO;
         }
     } else {
@@ -293,7 +299,7 @@ static DDLogLevel ddLogLevel = DDLogLevelInfo;
             if (self.delegate){
                 [self.delegate onLoginError:error];
             }
-            
+
             return NO;
         }
     }
@@ -333,7 +339,7 @@ static DDLogLevel ddLogLevel = DDLogLevelInfo;
 
     if (customCertEvaluation)
     {
-        settings[GCDAsyncSocketManuallyEvaluateTrust] = @(YES);
+        settings[@"GCDAsyncSocketManuallyEvaluateTrust"] = @(YES);
     }
 }
 
@@ -381,7 +387,7 @@ static DDLogLevel ddLogLevel = DDLogLevelInfo;
     // The delegate method should likely have code similar to this,
     // but will presumably perform some extra security code stuff.
     // For example, allowing a specific self-signed certificate that is known to the app.
-    
+
     if ([trustedHosts containsObject:xmppStream.hostName]) {
         completionHandler(YES);
     }
@@ -529,7 +535,7 @@ static DDLogLevel ddLogLevel = DDLogLevelInfo;
 - (void)xmppStream:(XMPPStream *)sender didReceiveError:(id)error
 {
     DDLogVerbose(@"%@: %@", THIS_FILE, THIS_METHOD);
-    [self.delegate onError:[NSError errorWithDomain:@"xmpp" code:1 userInfo:@{ NSLocalizedDescriptionKey: [error stringValue]}]];
+    [self.delegate onError:[NSError errorWithDomain:@"xmpp" code:1 userInfo:@{ NSLocalizedDescriptionKey: [error XMLString]}]];
 }
 
 - (void)xmppStreamDidDisconnect:(XMPPStream *)sender withError:(NSError *)error
@@ -557,11 +563,11 @@ static DDLogLevel ddLogLevel = DDLogLevelInfo;
     NSXMLElement *msg = [NSXMLElement elementWithName:@"message"];
     [msg addAttributeWithName:@"type" stringValue:@"chat"];
     [msg addAttributeWithName:@"to" stringValue: to];
-    
+
     if (thread != nil) {
         [msg addChild:[NSXMLElement elementWithName:@"thread" stringValue:thread]];
     }
-    
+
     [msg addChild:body];
     [xmppStream sendElement:msg];
 }

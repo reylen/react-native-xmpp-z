@@ -33,17 +33,39 @@ RCT_ENUM_CONVERTER(AuthMethod, (@{ PLAIN_AUTH : @(Plain),
 
 RCT_EXPORT_MODULE();
 
++ (BOOL)requiresMainQueueSetup
+{
+  return NO;
+
+}
+
+- (NSArray<NSString *> *)supportedEvents {
+    return @[
+        @"RNXMPPError",
+        @"RNXMPPLoginError",
+        @"RNXMPPMessage",
+        @"RNXMPPRoster",
+        @"RNXMPPIQ",
+        @"RNXMPPPresence",
+        @"RNXMPPConnect",
+        @"RNXMPPDisconnect",
+        @"RNXMPPLogin"
+    ];
+}
 
 -(void)onError:(NSError *)error {
     NSString *message = [error localizedDescription];
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPError" body:message];
+//    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPError" body:message];
+    [self sendEventWithName:@"RNXMPPError" body:message];
 }
 
 -(void)onLoginError:(NSError *)error {
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPLoginError" body:[error localizedDescription]];
+//    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPLoginError" body:[error localizedDescription]];
+    [self sendEventWithName:@"RNXMPPLoginError" body:[error localizedDescription]];
+
 }
 
--(id)contentOf:(XMPPElement *)element{
+-(id)contentOf:(XMPPElement *)element src:(BOOL) src{
     NSMutableDictionary *res = [NSMutableDictionary dictionary];
     if ([element respondsToSelector:@selector(attributesAsDictionary)]){
         res = [element attributesAsDictionary];
@@ -54,20 +76,26 @@ RCT_EXPORT_MODULE();
                 res[child.name] = [NSMutableArray arrayWithObjects:res[child.name], nil];
             }
             if (res[child.name]){
-                [res[child.name] addObject:[self contentOf:child]];
+                [res[child.name] addObject:[self contentOf:child src:NO]];
             } else {
                 if ([child.name isEqualToString:@"text"]){
                     if ([res count]){
-                        res[@"#text"] = [self contentOf:child];
+                        res[@"#text"] = [self contentOf:child src:NO];
                     } else {
-                        return [self contentOf:child];
+                        return [self contentOf:child src:NO];
                     }
                 } else {
-                    res[child.name] = [self contentOf:child];
+                    res[child.name] = [self contentOf:child src:NO];
                 }
             }
         }
     }
+    
+    if (src) {
+        //12255
+        res[@"src"]=[element XMLString];
+    }
+    
     if ([res count]){
         return res;
     } else {
@@ -76,40 +104,53 @@ RCT_EXPORT_MODULE();
 }
 
 -(void)onMessage:(XMPPMessage *)message {
-    NSDictionary *res = [self contentOf:message];
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPMessage" body:res];
-
+    NSDictionary *res = [self contentOf:message src:YES];
+//    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPMessage" body:res];
+    [self sendEventWithName:@"RNXMPPMessage" body:res];
 }
 
 -(void)onRosterReceived:(NSArray *)list {
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPRoster" body:list];
+//    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPRoster" body:list];
+    [self sendEventWithName:@"RNXMPPRoster" body:list];
+
 }
 
 -(void)onIQ:(XMPPIQ *)iq {
-    NSDictionary *res = [self contentOf:iq];
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPIQ" body:res];
+    NSDictionary *res = [self contentOf:iq src:YES];
+//    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPIQ" body:res];
+    [self sendEventWithName:@"RNXMPPIQ" body:res];
+
 }
 
 -(void)onPresence:(XMPPPresence *)presence {
-    NSDictionary *res = [self contentOf:presence];
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPPresence" body:res];
+    NSDictionary *res = [self contentOf:presence src:YES];
+//    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPPresence" body:res];
+    [self sendEventWithName:@"RNXMPPPresence" body:res];
+
 }
 
 -(void)onConnnect:(NSString *)username password:(NSString *)password {
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPConnect" body:@{@"username":username, @"password":password}];
+//    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPConnect" body:@{@"username":username, @"password":password}];
+    [self sendEventWithName:@"RNXMPPConnect" body:@{@"username":username, @"password":password}];
+
 }
 
 -(void)onDisconnect:(NSError *)error {
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPDisconnect" body:[error localizedDescription]];
+//    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPDisconnect" body:[error localizedDescription]];
+    [self sendEventWithName:@"RNXMPPDisconnect" body:[error localizedDescription]];
+
     if ([error localizedDescription]){
-        [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPLoginError" body:[error localizedDescription]];
+        [self sendEventWithName:@"RNXMPPLoginError" body:[error localizedDescription]];
+
+//        [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPLoginError" body:[error localizedDescription]];
     }
 }
 
 -(void)onLogin:(NSString *)username password:(NSString *)password {
-    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPLogin" body:@{@"username":username, @"password":password}];
-}
+//    [self.bridge.eventDispatcher sendAppEventWithName:@"RNXMPPLogin" body:@{@"username":username, @"password":password}];
+    [self sendEventWithName:@"RNXMPPLogin" body:@{@"username":username, @"password":password}];
 
+}
 RCT_EXPORT_METHOD(trustHosts:(NSArray *)hosts){
     [RNXMPPService sharedInstance].delegate = self;
     [[RNXMPPService sharedInstance] trustHosts:hosts];
@@ -162,8 +203,6 @@ RCT_EXPORT_METHOD(sendStanza:(NSString *)stanza){
               DigestMD5_AUTH: @(MD5)
               };
 };
-+ (BOOL)requiresMainQueueSetup
-{
-  return NO;
-}
+
+
 @end
