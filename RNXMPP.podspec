@@ -13,10 +13,10 @@ Pod::Spec.new do |s|
   s.source              = { :git => 'https://github.com/reylen/react-native-xmpp-z.git', :tag => s.version }
 
   s.requires_arc        = true
-  s.platform            = :ios, '8.0'
-  
-  s.dependency 'React'
+  s.platform            = :ios, '10.0'
+
+  s.dependency 'React-Core'
   s.dependency 'XMPPFramework'
   s.preserve_paths      = 'package.json', 'index.js'
-  s.source_files        = 'RNXMPP/XMPPFramework.h', 'RNXMPP/RNXMPPService.m', 'RNXMPP/RNXMPPService.h', 'RNXMPP/RNXMPPConstants.h', 'RNXMPP/RNXMPPConstants.m', 'RNXMPP/RNXMPP.h', 'RNXMPP/RNXMPP.m'
+  s.source_files        = 'ios/RNXMPP/XMPPFramework.h', 'ios/RNXMPP/RNXMPPService.m', 'ios/RNXMPP/RNXMPPService.h', 'ios/RNXMPP/RNXMPPConstants.h', 'ios/RNXMPP/RNXMPPConstants.m', 'ios/RNXMPP/RNXMPP.h', 'ios/RNXMPP/RNXMPP.m'
 end

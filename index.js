@@ -16,9 +16,9 @@ var map = {
 }
 
 const LOG = (message) => {
-  if (__DEV__) {
-    console.log('react-native-xmpp: ' + message);
-  }
+    if (__DEV__) {
+        console.log('react-native-xmpp: ' + message);
+    }
 }
 
 class XMPP {
@@ -101,7 +101,7 @@ class XMPP {
             NativeAppEventEmitter.addListener(map.loginError, this.onLoginError.bind(this)),
             NativeAppEventEmitter.addListener(map.login, this.onLogin.bind(this)),
         ];
-        
+
         LOG('All event listeners removed');
     }
 
@@ -143,9 +143,9 @@ class XMPP {
         }
     }
     disconnectAfterSending(){
-      if (this.isConnected){
-        React.NativeModules.RNXMPP.disconnectAfterSending();
-      }
+        if (this.isConnected){
+            React.NativeModules.RNXMPP.disconnectAfterSending();
+        }
     }
 }
 

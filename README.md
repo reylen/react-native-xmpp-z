@@ -6,6 +6,10 @@ A simple interface for native XMPP communication. Both iOS and Android are suppo
 
 This version of XMPP remove 'XMPPFramework.h' file,  that's confict width the framework 'XMPPFramework'. So we remove it!
 
+# 2020.11.30  update for react-native v0.63.2   change s.dependency 'React' to s.dependency "React-Core"
+# 2021.11.18  update ios project file location, modify  RNXMPP   extends RCTEventEmitter
+# 2021.11.19  修复1.1.5 src 问题
+# 2022.12.21  修复iOS下 CocoaAsyncSocket 后台运行问题，ios16之后禁止socket后台
 ## Demo
 
 XmppDemo uses a Flux approach (check its `XmppStore`) to communicate with a sample XMPP server, where 4 accounts were registered.
